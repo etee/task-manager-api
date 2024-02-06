@@ -4,11 +4,13 @@
   "description": "Assignment 1 for backend engineering launchpad",
   "main": "index.js",
   "scripts": {
-    "test": "tap test/*.js --disable-coverage"
+    "test": "tap test/*.js --disable-coverage",
+    "dev": "nodemon --inspect app.js"
   },
   "author": "Airtribe",
   "license": "ISC",
   "devDependencies": {
+    "nodemon": "^3.0.3",
     "supertest": "^6.3.4",
     "tap": "^18.6.1"
   },
