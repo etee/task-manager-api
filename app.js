@@ -6,6 +6,14 @@ const port = 3000;
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+const logger = (req, res, next) => {
+    const {method, url} = req;
+    console.log(`${method} ${url}`);
+    next();
+};
+
+app.use(logger);
+
 app.get("/", (req, res) => {
     res.status(200).send("Task Manager API");
 });

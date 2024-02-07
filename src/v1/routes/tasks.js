@@ -22,9 +22,9 @@ router.get("/v1/tasks", (req, res) => {
             }
             
         }
-        res.status(200).json(filteredTasks);
+        return res.status(200).json(filteredTasks);
     } else {
-        res.status(200).json(tasksData);
+        return res.status(200).json(tasksData);
     }
 });
 
@@ -34,7 +34,7 @@ router.get("/v1/tasks/:id", (req, res) => {
     if(filteredTask.length === 0) {
         return res.status(404).send("The task you are looking for is not found!");
     }
-    res.status(200).json(filteredTask);
+    return res.status(200).json(filteredTask[0]);
 });
 
 router.post("/v1/tasks", (req, res) => { 
@@ -48,7 +48,7 @@ router.post("/v1/tasks", (req, res) => {
         newTaskDetails['id'] = modifiedTaskData.tasks.length + 1;
         modifiedTaskData.tasks.push(newTaskDetails);
         //Utils.writeToFile(modifiedTaskData, 'creation');
-        res.status(201).send("Task has been successfully validated and created")
+        return res.status(201).send("Task has been successfully validated and created")
     }
 });
 
@@ -70,7 +70,7 @@ router.put("/v1/tasks/:id", (req, res) => {
         taskDataToBeUpdated.created = newTaskDetails.created;
         taskDataToBeUpdated.priority = newTaskDetails.priority;
         //Utils.writeToFile(tasksData, 'update');
-        res.status(200).send("Task has been successfully validated and updated")
+        return res.status(200).send("Task has been successfully validated and updated")
     }
 });
 
@@ -83,7 +83,7 @@ router.delete("/v1/tasks/:id", (req, res) => {
         const taskIdFromSchema = tasksData.tasks.indexOf(taskDataToBeDeleted);
         tasksData.tasks.splice(taskIdFromSchema, 1);
         //Utils.writeToFile(tasksData, 'deletion');
-        res.status(201).send("Task has been successfully deleted")
+        return res.status(200).send("Task has been successfully deleted")
     }
 });
 
@@ -93,7 +93,7 @@ router.get("/v1/tasks/priority/:level", (req, res) => {
     if(tasksDataWithLevel.length === 0) {
         return res.status(404).send(`Task with ${level} priority are not found!`);
     }
-    res.status(200).json(tasksDataWithLevel);
+    return res.status(200).json(tasksDataWithLevel);
 });
 
 module.exports = router;
