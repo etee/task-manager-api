@@ -2,7 +2,9 @@ class Validator {
     static validateTaskInfo(taskInfo) {
         if(taskInfo.hasOwnProperty('title') &&
         taskInfo.hasOwnProperty('description') &&
-        taskInfo.hasOwnProperty('completed')
+        taskInfo.hasOwnProperty('completed') &&
+        taskInfo.hasOwnProperty('created') &&
+        taskInfo.hasOwnProperty('priority')
         ) {
             return {
                 "status": true,
@@ -19,7 +21,9 @@ class Validator {
     static validateTaskInfoValues(taskInfo) {
         if(taskInfo['title'] !== "" &&
         taskInfo['description'] !== "" &&
-        typeof taskInfo['completed'] === "boolean") {
+        typeof taskInfo['completed'] === "boolean" &&
+        taskInfo['created'] !== "" &&
+        taskInfo['priority'] !== "") {
             return {
                 "status": true,
                 "message": "Task info has been validated."

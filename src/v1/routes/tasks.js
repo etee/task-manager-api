@@ -2,10 +2,30 @@ const express = require("express");
 const router = express.Router();
 const tasksData = require('../../../task.json');
 const Validator = require('../../helpers/validator');
-const fs = require('fs');
+const Utils = require('../../helpers/utils');
 
 router.get("/v1/tasks", (req, res) => {
-    res.status(200).json(tasksData);
+    let filteredTasks = tasksData.tasks;
+    if(req.query) {
+        for (let queryParams in req.query) {
+            if(queryParams === 'completed') {
+                filteredTasks = filteredTasks.filter(task => String(task.completed) == req.query[queryParams]);
+                if(filteredTasks.length === 0) {
+                    return res.status(404).send("No tasks are found that are completed");
+                }
+             
+            }
+            if(queryParams === 'sort') {
+                const sortBy = req.query[queryParams].split(':')[0];
+                const sortOrder = req.query[queryParams].split(':')[1];
+                filteredTasks = Utils.sortTasks(filteredTasks, sortBy, sortOrder);
+            }
+            
+        }
+        res.status(200).json(filteredTasks);
+    } else {
+        res.status(200).json(tasksData);
+    }
 });
 
 router.get("/v1/tasks/:id", (req, res) => {
@@ -27,13 +47,8 @@ router.post("/v1/tasks", (req, res) => {
         let modifiedTaskData = tasksData;
         newTaskDetails['id'] = modifiedTaskData.tasks.length + 1;
         modifiedTaskData.tasks.push(newTaskDetails);
-        fs.writeFile('./task.json', JSON.stringify(modifiedTaskData), {encoding: 'utf8', flag: 'w'}, (err, data) => {
-            if(err) {
-                return res.status(500).send("Something went wrong while adding a task, please try again!!");
-            } else {
-                res.status(201).send("Task has been successfully validated and created")
-            }
-        })
+        //Utils.writeToFile(modifiedTaskData, 'creation');
+        res.status(201).send("Task has been successfully validated and created")
     }
 });
 
@@ -52,13 +67,10 @@ router.put("/v1/tasks/:id", (req, res) => {
         taskDataToBeUpdated.title = newTaskDetails.title;
         taskDataToBeUpdated.description = newTaskDetails.description;
         taskDataToBeUpdated.completed = newTaskDetails.completed;
-        fs.writeFile('./task.json', JSON.stringify(tasksData), {encoding: 'utf8', flag: 'w'}, (err, data) => {
-            if(err) {
-                return res.status(500).send("Something went wrong while updating a task, please try again!!");
-            } else {
-                res.status(200).send("Task has been successfully validated and updated")
-            }
-        });
+        taskDataToBeUpdated.created = newTaskDetails.created;
+        taskDataToBeUpdated.priority = newTaskDetails.priority;
+        //Utils.writeToFile(tasksData, 'update');
+        res.status(200).send("Task has been successfully validated and updated")
     }
 });
 
@@ -70,14 +82,18 @@ router.delete("/v1/tasks/:id", (req, res) => {
     } else {
         const taskIdFromSchema = tasksData.tasks.indexOf(taskDataToBeDeleted);
         tasksData.tasks.splice(taskIdFromSchema, 1);
-        fs.writeFile('./task.json', JSON.stringify(tasksData), {encoding: 'utf8', flag: 'w'}, (err, data) => {
-            if(err) {
-                return res.status(500).send("Something went wrong while deleting a task, please try again!!");
-            } else {
-                res.status(200).send("Task has been successfully deleted")
-            }
-        });
+        //Utils.writeToFile(tasksData, 'deletion');
+        res.status(201).send("Task has been successfully deleted")
     }
+});
+
+router.get("/v1/tasks/priority/:level", (req, res) => {
+    const level = req.params.level;
+    const tasksDataWithLevel = tasksData.tasks.filter(task => task.priority === level);
+    if(tasksDataWithLevel.length === 0) {
+        return res.status(404).send(`Task with ${level} priority are not found!`);
+    }
+    res.status(200).json(tasksDataWithLevel);
 });
 
 module.exports = router;
